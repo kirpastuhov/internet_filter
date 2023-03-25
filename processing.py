@@ -21,23 +21,22 @@ async def fetch(session, url):
 
 
 @timer
-async def process_article(results: list, url: str, charged_words: list, morph: pymorphy2.MorphAnalyzer):
-    async with aiohttp.ClientSession() as session:
-        article = {"url": url, "status": ProcessingStatus.OK.value, "jaundice_rate": None, "word_count": None}
-        try:
-            html = await fetch(session, url)
-            text = sanitize(html, plaintext=True)
+async def process_article(session: aiohttp.ClientSession, results: list, url: str, charged_words: list, morph: pymorphy2.MorphAnalyzer):
+    article = {"url": url, "status": ProcessingStatus.OK.value, "jaundice_rate": None, "word_count": None}
+    try:
+        html = await fetch(session, url)
+        text = sanitize(html, plaintext=True)
 
-            article["jaundice_rate"] = calculate_jaundice_rate(text, charged_words)
-            article["word_count"] = len(split_by_words(morph, text))
+        article["jaundice_rate"] = calculate_jaundice_rate(text, charged_words)
+        article["word_count"] = len(split_by_words(morph, text))
 
-        except ClientResponseError:
-            article["status"] = ProcessingStatus.FETCH_ERROR.value
-        except ArticleNotFound:
-            article["status"] = ProcessingStatus.PARSING_ERROR.value
-        except TimeoutError:
-            article["status"] = ProcessingStatus.TIMEOUT.value
-        except TimeoutException:
-            article["status"] = ProcessingStatus.TIMEOUT.value
+    except ClientResponseError:
+        article["status"] = ProcessingStatus.FETCH_ERROR.value
+    except ArticleNotFound:
+        article["status"] = ProcessingStatus.PARSING_ERROR.value
+    except TimeoutError:
+        article["status"] = ProcessingStatus.TIMEOUT.value
+    except TimeoutException:
+        article["status"] = ProcessingStatus.TIMEOUT.value
 
-        results.append(article)
+    results.append(article)

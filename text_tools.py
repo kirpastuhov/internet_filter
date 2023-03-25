@@ -13,7 +13,7 @@ def _clean_word(word):
 
 
 @timer
-def split_by_words(morph, text):
+async def split_by_words(morph, text):
     """Takes account of punctuation marks, case and word forms, and throws out prepositions."""
     words = []
     with time_limit(PROCESSING_LIMIT):
