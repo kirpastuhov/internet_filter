@@ -9,17 +9,17 @@ from processing import process_article, split_by_words
 async def process_urls(request):
     if not request.query:
         raise web.HTTPBadRequest(text="Please provide urls to process")
-    else:
-        urls = request.query["urls"].split(",")
-        if len(urls) > 10:
-            raise web.HTTPBadRequest(text="too many urls in request, should be 10 or less")
-        results = []
-        async with create_task_group() as tg:
-            async with aiohttp.ClientSession() as session:
-                for url in urls:
-                    tg.start_soon(process_article, session, results, url, charged_words, morph)
 
-        return web.json_response(results)
+    urls = request.query["urls"].split(",")
+    if len(urls) > 10:
+        raise web.HTTPBadRequest(text="too many urls in request, should be 10 or less")
+    results = []
+    async with create_task_group() as tg:
+        async with aiohttp.ClientSession() as session:
+            for url in urls:
+                tg.start_soon(process_article, session, results, url, charged_words, morph)
+
+    return web.json_response(results)
 
 
 if __name__ == "__main__":

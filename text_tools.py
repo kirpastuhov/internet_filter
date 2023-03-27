@@ -5,7 +5,7 @@ from utils import time_limit, timer
 PROCESSING_LIMIT = 1
 
 
-def _clean_word(word):
+async def _clean_word(word):
     word = word.replace("«", "").replace("»", "").replace("…", "")
     # FIXME какие еще знаки пунктуации часто встречаются ?
     word = word.strip(string.punctuation)
@@ -18,7 +18,7 @@ async def split_by_words(morph, text):
     words = []
     with time_limit(PROCESSING_LIMIT):
         for word in text.split():
-            cleaned_word = _clean_word(word)
+            cleaned_word = await _clean_word(word)
             normalized_word = morph.parse(cleaned_word)[0].normal_form
             if len(normalized_word) > 2 or normalized_word == "не":
                 words.append(normalized_word)
